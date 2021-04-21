@@ -20,7 +20,7 @@ class Sketch {
       0.1,
       1000
     );
-    this.camera.position.set(0, 0, 15);
+    this.camera.position.set(0, 0, 40);
 
     this.scene = new THREE.Scene();
 
@@ -52,15 +52,37 @@ class Sketch {
   }
 
   makeInstancedStuff() {
-    const baseGeometry = new THREE.SphereGeometry(1);
+    const n = 10;
+
+    const baseGeometry = new THREE.BoxGeometry(1);
     const instancedGeometry = new THREE.InstancedBufferGeometry().copy(baseGeometry);
-    const instanceCount = 1000;
+    const instanceCount = n * n * n;
     instancedGeometry.instanceCount = instanceCount;
 
+    // Position attribute
+    let aPosition = new Float32Array(instanceCount * 3);
+    let i = 0;
+    let padding = 1.5;
+
+    for (let y = 0; y < 10; y++) {
+      for (let x = 0; x < 10; x++) {
+        for (let z = 0; z < 10; z++) {
+          aPosition[i + 0] = (x - (n / 2)) * padding;
+          aPosition[i + 1] = (y - (n / 2)) * padding;
+          aPosition[i + 2] = (z - (n / 2)) * padding;
+  
+          i+=3;
+        }
+      }
+    }
+
+    instancedGeometry.setAttribute('aPosition', new THREE.InstancedBufferAttribute(aPosition, 3));
+
+    // Index attribute
     let aIndex = new Float32Array(instanceCount);
-    
-    for (let i = 0; i < aIndex.length; i++) {
-      aIndex[i] = i / (aIndex.length - 1);
+
+    for (let i = 0; i < instanceCount; i++) {
+      aIndex[i] = i;
     }    
 
     instancedGeometry.setAttribute('aIndex', new THREE.InstancedBufferAttribute(aIndex, 1));
@@ -71,10 +93,11 @@ class Sketch {
       uniforms: {
         uTime: { value: 0 },
       },
+      // wireframe: true,
     });
-    const mesh = new THREE.Mesh(instancedGeometry, material);
+    this.mesh = new THREE.Mesh(instancedGeometry, material);
 
-    this.scene.add(mesh);
+    this.scene.add(this.mesh);
   }
 
   resize() {
@@ -85,6 +108,11 @@ class Sketch {
 
   render() {
     this.controls.update();
+
+    this.mesh.material.uniforms.uTime.value = this.clock.getElapsedTime();
+
+    // this.mesh.rotation.x = this.clock.getElapsedTime() * 0.25;
+    // this.mesh.rotation.y = this.clock.getElapsedTime() * 0.25;
 
     this.renderer.setAnimationLoop(this.render.bind(this));
     this.renderer.render(this.scene, this.camera);

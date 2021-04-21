@@ -20,7 +20,7 @@ class Sketch {
       0.1,
       1000
     );
-    this.camera.position.set(0, 0, 5);
+    this.camera.position.set(0, 0, 15);
 
     this.scene = new THREE.Scene();
 

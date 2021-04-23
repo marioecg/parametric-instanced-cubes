@@ -14,13 +14,18 @@ class Sketch {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor(0x000000, 0);
 
-    this.camera = new THREE.PerspectiveCamera(
-      45,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    this.camera.position.set(0, 0, 40);
+    // this.camera = new THREE.PerspectiveCamera(
+    //   45,
+    //   window.innerWidth / window.innerHeight,
+    //   0.1,
+    //   1000
+    // );
+
+    this.aspectRatio = window.innerWidth / window.innerHeight;
+    this.wide = 18;
+    this.camera = new THREE.OrthographicCamera(- this.wide * this.aspectRatio, this.wide * this.aspectRatio, this.wide, - this.wide, 0.1, 100);
+
+    this.camera.position.set(0, 0, 20);
 
     this.scene = new THREE.Scene();
 
@@ -96,23 +101,27 @@ class Sketch {
       // wireframe: true,
     });
     this.mesh = new THREE.Mesh(instancedGeometry, material);
+    this.mesh.rotation.set(Math.PI * 0.25, Math.PI * 0.25, Math.PI * 0);
 
     this.scene.add(this.mesh);
   }
 
   resize() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    // this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.aspectRatio = window.innerWidth / window.innerHeight;
+
+    this.camera.left = -this.wide * this.aspectRatio;
+    this.camera.right = this.wide * this.aspectRatio;
+    this.camera.top = this.wide;
+    this.camera.bottom = -this.wide;
+    this.camera.updateProjectionMatrix();    
   }
 
   render() {
     this.controls.update();
 
     this.mesh.material.uniforms.uTime.value = this.clock.getElapsedTime();
-
-    // this.mesh.rotation.x = this.clock.getElapsedTime() * 0.25;
-    // this.mesh.rotation.y = this.clock.getElapsedTime() * 0.25;
 
     this.renderer.setAnimationLoop(this.render.bind(this));
     this.renderer.render(this.scene, this.camera);

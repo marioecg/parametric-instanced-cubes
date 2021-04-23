@@ -1,8 +1,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-import vertexShader from './shaders/vertex.glsl';
-import fragmentShader from './shaders/fragment.glsl';
+import voxelsVertex from './shaders/voxels/vertex.glsl';
+import voxelsFragment from './shaders/voxels/fragment.glsl';
+
+import backgroundVertex from './shaders/background/vertex.glsl';
+import backgroundFragment from './shaders/background/fragment.glsl';
 
 class Sketch {
   constructor() {
@@ -22,8 +25,8 @@ class Sketch {
     // );
 
     this.aspectRatio = window.innerWidth / window.innerHeight;
-    this.wide = 18;
-    this.camera = new THREE.OrthographicCamera(- this.wide * this.aspectRatio, this.wide * this.aspectRatio, this.wide, - this.wide, 0.1, 100);
+    this.wide = 36;
+    this.camera = new THREE.OrthographicCamera(- (this.wide / 2) * this.aspectRatio, (this.wide / 2) * this.aspectRatio, this.wide / 2, - this.wide / 2, 0.1, 100);
 
     this.camera.position.set(0, 0, 20);
 
@@ -36,14 +39,13 @@ class Sketch {
 
     this.clock = new THREE.Clock();
 
-    this.resize();
     this.init();
   }
 
   init() {
     this.addCanvas();
     this.addEvents();
-    this.makeInstancedStuff();
+    this.addElements();
     this.render();
   }
 
@@ -56,10 +58,32 @@ class Sketch {
     window.addEventListener('resize', this.resize.bind(this));
   }
 
+  addElements() {
+    // Voxels
+    this.makeInstancedStuff();
+
+    // Background
+    const planeWidth = this.camera.right * 0.12;
+    const planeHeight = this.camera.top * 0.12;
+    const planeGeometry = new THREE.PlaneGeometry(2, 2);
+    const planeMaterial = new THREE.ShaderMaterial({
+      vertexShader: backgroundVertex,
+      fragmentShader: backgroundFragment,
+      uniforms: {
+        uTime: { value: 0 },
+        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+      }
+    });
+
+    this.background = new THREE.Mesh(planeGeometry, planeMaterial);
+
+    this.scene.add(this.background);
+  }
+
   makeInstancedStuff() {
     const n = 10;
 
-    const baseGeometry = new THREE.BoxGeometry(1);
+    const baseGeometry = new THREE.BoxGeometry(1, 1, 1);
     const instancedGeometry = new THREE.InstancedBufferGeometry().copy(baseGeometry);
     const instanceCount = n * n * n;
     instancedGeometry.instanceCount = instanceCount;
@@ -94,17 +118,17 @@ class Sketch {
     instancedGeometry.setAttribute('aIndex', new THREE.InstancedBufferAttribute(aIndex, 1));
   
     const material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
+      vertexShader: voxelsVertex,
+      fragmentShader: voxelsFragment,
       uniforms: {
         uTime: { value: 0 },
       },
       // wireframe: true,
     });
-    this.mesh = new THREE.Mesh(instancedGeometry, material);
-    this.mesh.rotation.set(Math.PI * 0.25, Math.PI * 0.25, Math.PI * 0);
+    this.voxels = new THREE.Mesh(instancedGeometry, material);
+    this.voxels.rotation.set(Math.PI * 0.25, Math.PI * 0.25, Math.PI * 0);
 
-    this.scene.add(this.mesh);
+    this.scene.add(this.voxels);
   }
 
   resize() {
@@ -112,17 +136,20 @@ class Sketch {
     // this.camera.aspect = window.innerWidth / window.innerHeight;
     this.aspectRatio = window.innerWidth / window.innerHeight;
 
-    this.camera.left = -this.wide * this.aspectRatio;
-    this.camera.right = this.wide * this.aspectRatio;
-    this.camera.top = this.wide;
-    this.camera.bottom = -this.wide;
+    this.camera.left = -this.wide * this.aspectRatio / 2;
+    this.camera.right = this.wide * this.aspectRatio / 2;
+    this.camera.top = this.wide / 2;
+    this.camera.bottom = -this.wide / 2;
     this.camera.updateProjectionMatrix();    
+
+    this.background.material.uniforms.uResolution.value.x = window.innerWidth;
+    this.background.material.uniforms.uResolution.value.y = window.innerHeight;
   }
 
   render() {
     this.controls.update();
 
-    this.mesh.material.uniforms.uTime.value = this.clock.getElapsedTime();
+    this.voxels.material.uniforms.uTime.value = this.clock.getElapsedTime();
 
     this.renderer.setAnimationLoop(this.render.bind(this));
     this.renderer.render(this.scene, this.camera);

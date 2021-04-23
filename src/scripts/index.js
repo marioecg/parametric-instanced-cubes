@@ -68,13 +68,14 @@ class Sketch {
     let aPosition = new Float32Array(instanceCount * 3);
     let i = 0;
     let padding = 1.5;
+    let middle = (n - 1) / 2;
 
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
         for (let z = 0; z < 10; z++) {
-          aPosition[i + 0] = (x - (n / 2)) * padding;
-          aPosition[i + 1] = (y - (n / 2)) * padding;
-          aPosition[i + 2] = (z - (n / 2)) * padding;
+          aPosition[i + 0] = (x - middle) * padding;
+          aPosition[i + 1] = (y - middle) * padding;
+          aPosition[i + 2] = (z - middle) * padding;
   
           i+=3;
         }

@@ -17,13 +17,6 @@ class Sketch {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor(0x000000, 0);
 
-    // this.camera = new THREE.PerspectiveCamera(
-    //   45,
-    //   window.innerWidth / window.innerHeight,
-    //   0.1,
-    //   1000
-    // );
-
     this.aspectRatio = window.innerWidth / window.innerHeight;
     this.wide = 36;
     this.camera = new THREE.OrthographicCamera(- (this.wide / 2) * this.aspectRatio, (this.wide / 2) * this.aspectRatio, this.wide / 2, - this.wide / 2, 0.1, 100);
@@ -133,7 +126,6 @@ class Sketch {
 
   resize() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    // this.camera.aspect = window.innerWidth / window.innerHeight;
     this.aspectRatio = window.innerWidth / window.innerHeight;
 
     this.camera.left = -this.wide * this.aspectRatio / 2;

@@ -11,5 +11,5 @@ void main() {
   vec3 pink1 = vec3(0.9843, 0.6745, 0.8);
   vec3 pink2 = vec3(0.9725, 0.4588, 0.6666);
   vec3  color = mix(pink1, pink2, gradient);
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(vec3(0.0), 1.0);
 }

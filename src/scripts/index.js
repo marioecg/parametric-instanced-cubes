@@ -7,6 +7,8 @@ import voxelsFragment from './shaders/voxels/fragment.glsl';
 import backgroundVertex from './shaders/background/vertex.glsl';
 import backgroundFragment from './shaders/background/fragment.glsl';
 
+import glsl from 'glslify';
+
 class Sketch {
   constructor() {
     this.renderer = new THREE.WebGLRenderer({
@@ -16,13 +18,6 @@ class Sketch {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor(0x000000, 0);
-
-    // this.camera = new THREE.PerspectiveCamera(
-    //   45,
-    //   window.innerWidth / window.innerHeight,
-    //   0.1,
-    //   1000
-    // );
 
     this.aspectRatio = window.innerWidth / window.innerHeight;
     this.wide = 36;
@@ -133,7 +128,6 @@ class Sketch {
 
   resize() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    // this.camera.aspect = window.innerWidth / window.innerHeight;
     this.aspectRatio = window.innerWidth / window.innerHeight;
 
     this.camera.left = -this.wide * this.aspectRatio / 2;
